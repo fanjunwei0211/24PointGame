@@ -1,6 +1,6 @@
 ﻿namespace _24PointGame
 {
-    partial class About
+    partial class GameMode
     {
         /// <summary>
         /// Required designer variable.
@@ -28,37 +28,24 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(About));
-            label1 = new Label();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(GameMode));
             SuspendLayout();
             // 
-            // label1
-            // 
-            label1.Font = new Font("Microsoft YaHei UI", 10F, FontStyle.Regular, GraphicsUnit.Point);
-            label1.Location = new Point(26, 58);
-            label1.Name = "label1";
-            label1.Size = new Size(467, 321);
-            label1.TabIndex = 0;
-            label1.Text = resources.GetString("label1.Text");
-            // 
-            // About
+            // GameMode
             // 
             AutoScaleDimensions = new SizeF(9F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(521, 419);
-            Controls.Add(label1);
+            ClientSize = new Size(800, 450);
             FormBorderStyle = FormBorderStyle.FixedDialog;
             Icon = (Icon)resources.GetObject("$this.Icon");
             MaximizeBox = false;
             MinimizeBox = false;
-            Name = "About";
+            Name = "GameMode";
             StartPosition = FormStartPosition.CenterParent;
-            Text = "游戏说明";
+            Text = "闯关模式";
             ResumeLayout(false);
         }
 
         #endregion
-
-        private Label label1;
     }
 }

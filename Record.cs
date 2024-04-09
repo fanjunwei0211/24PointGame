@@ -10,12 +10,11 @@ using System.Windows.Forms;
 
 namespace _24PointGame
 {
-    public partial class About : Form
+    public partial class Record : Form
     {
-        public About()
+        public Record()
         {
             InitializeComponent();
         }
-
     }
 }
