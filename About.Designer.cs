@@ -30,6 +30,7 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(About));
             label1 = new Label();
+            button1 = new Button();
             SuspendLayout();
             // 
             // label1
@@ -41,11 +42,23 @@
             label1.TabIndex = 0;
             label1.Text = resources.GetString("label1.Text");
             // 
+            // button1
+            // 
+            button1.Font = new Font("Microsoft YaHei UI", 15F, FontStyle.Regular, GraphicsUnit.Point);
+            button1.Location = new Point(195, 336);
+            button1.Name = "button1";
+            button1.Size = new Size(106, 57);
+            button1.TabIndex = 1;
+            button1.Text = "返回";
+            button1.UseVisualStyleBackColor = true;
+            button1.Click += button1_Click;
+            // 
             // About
             // 
             AutoScaleDimensions = new SizeF(9F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(521, 419);
+            Controls.Add(button1);
             Controls.Add(label1);
             FormBorderStyle = FormBorderStyle.FixedDialog;
             Icon = (Icon)resources.GetObject("$this.Icon");
@@ -60,5 +73,6 @@
         #endregion
 
         private Label label1;
+        private Button button1;
     }
 }

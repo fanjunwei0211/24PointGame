@@ -69,6 +69,7 @@
             button_trick.TabIndex = 1;
             button_trick.Text = "闯关模式";
             button_trick.UseVisualStyleBackColor = false;
+            button_trick.Click += button_trick_Click;
             // 
             // button_data
             // 
@@ -80,6 +81,7 @@
             button_data.TabIndex = 1;
             button_data.Text = "闯关记录";
             button_data.UseVisualStyleBackColor = false;
+            button_data.Click += button_data_Click;
             // 
             // button_about
             // 

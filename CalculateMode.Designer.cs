@@ -100,6 +100,7 @@
             button_Handin.TabIndex = 0;
             button_Handin.Text = "确定";
             button_Handin.UseVisualStyleBackColor = true;
+            button_Handin.Click += button_Handin_Click;
             // 
             // tabPage2
             // 
@@ -198,6 +199,8 @@
             Controls.Add(groupBox1);
             Controls.Add(tabControl1);
             Icon = (Icon)resources.GetObject("$this.Icon");
+            MaximizeBox = false;
+            MinimizeBox = false;
             Name = "CalculateMode";
             StartPosition = FormStartPosition.CenterParent;
             Text = "计算模式";

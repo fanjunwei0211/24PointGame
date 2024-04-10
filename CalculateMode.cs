@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,63 +16,7 @@ namespace _24PointGame
     public partial class CalculateMode : Form
     {
         private int A, B, C, D;//牌面大小对应的数字大小也用于交换数字的位置
-        private int NumberA, NumberB, NumberC, NumberD;//牌面大小对应的数字大小
-        private int topCard = 0;//显示在窗体四张牌中扑克牌的编号(1-41)
-
-        #region 一副牌的生成
-        //结构： 值得一提的是，在C++中，struct的功能得到了强化，struct不仅可以添加成员变量，
-        //还可以添加成员函数，和class类似。
-        struct card
-        {
-            public int face;//牌面大小，数字大小
-            public int suit;//牌面花色，如梅花、黑桃、红心、方块，只能有四张
-            public int count;//牌面点数，牌面上的的图案点数
-            public bool faceup;//牌面是否向上
-        }
-        private card[] PlayingCards;//一副牌
-
-        //生成一副牌
-        private void GetPlayingCareds()
-        {
-            PlayingCards = new card[41];
-            int i;//牌面大小
-            int j;//牌面花色
-            for (i = 0; i < 10; i++)
-            {
-                for (j = 1; j <= 4; j++)
-                {
-                    PlayingCards[j + i * 4].face = i + 1;//PlayingCards[j + i * 4]:指的是：j + i * 4  =>获取文件图片扑克牌的序号
-                    PlayingCards[j + i * 4].suit = j;//牌面花色，如梅花、黑桃、红心、方块，只能有四张
-                    if (i < 10)
-                    {
-                        PlayingCards[j + i * 4].count = i + 1;//牌面点数，牌面上的的图案点数
-                    }
-                    else
-                    {
-                        PlayingCards[j + i * 4].count = 10;
-                    }
-                    PlayingCards[j + i * 4].faceup = false;
-                }
-            }
-        }
-        //洗牌 :Shuffle
-        private void Shuffle()
-        {
-            Random random = new Random((int)DateTime.Now.Ticks);
-            card middleCard;//作为临时交换牌顺序的变量
-            int j, k;
-            for (int i = 0; i < 1000; i++)
-            {
-                j = (int)random.Next(1, 41);
-                k = (int)random.Next(1, 41);
-                //打乱牌的顺序(随机交换牌的顺序)
-                middleCard = PlayingCards[j];
-                PlayingCards[j] = PlayingCards[k];
-                PlayingCards[k] = middleCard;
-            }
-        }
-        #endregion
-
+        private int NumberA, NumberB, NumberC, NumberD;//牌面大小对应的数字大
 
         public CalculateMode()
         {
@@ -355,8 +300,111 @@ namespace _24PointGame
 
         private void CalculateMode_Load(object sender, EventArgs e)
         {
-            GetPlayingCareds();//生成一副牌
-            Shuffle();//洗牌
+
+        }
+
+        private void button_Handin_Click(object sender, EventArgs e)
+        {
+            string input = textBox1.Text;
+            string[] numbers = input.Split(' ');
+            if(numbers.Length != 4)
+            {
+                MessageBox.Show("请输入四个数");
+                return;
+            }
+            if(int.Parse(numbers[0]) < 1 || int.Parse(numbers[0]) > 10)
+            {
+                MessageBox.Show("请输入1~10之间数");
+                return;
+            }
+            NumberA = int.Parse(numbers[0]);
+            
+            if(int.Parse(numbers[1]) < 1 || int.Parse(numbers[1]) > 10)
+            {
+                MessageBox.Show("请输入1~10之间数");
+                return;
+            }
+            NumberB = int.Parse(numbers[1]);
+            
+            if (int.Parse(numbers[2]) < 1 || int.Parse(numbers[2]) > 10)
+            {
+                MessageBox.Show("请输入1~10之间数");
+                return;
+            }
+            NumberC = int.Parse(numbers[2]);
+            
+            
+            if (int.Parse(numbers[3]) < 1 || int.Parse(numbers[3]) > 10)
+            {
+                MessageBox.Show("请输入1~10之间数");
+                return;
+            }
+            NumberD = int.Parse(numbers[3]);
+
+            int imageNum;
+            string path;
+            Random random = new Random((int)DateTime.Now.Ticks);
+            //生成牌的序号
+            int num_k;
+            //画第一张牌
+            num_k = (int)random.Next(1, 5);
+            imageNum = num_k + (NumberA - 1) * 4;
+            path = Directory.GetCurrentDirectory() + @"\images\" + imageNum.ToString() + ".bmp";
+            pictureBox1.Image = Image.FromFile(path);
+
+            //画第二张牌
+            num_k = (int)random.Next(1, 5);
+            imageNum = num_k + (NumberB - 1) * 4;
+            path = Directory.GetCurrentDirectory() + @"\images\" + imageNum.ToString() + ".bmp";
+            pictureBox2.Image = Image.FromFile(path);
+
+            //画第三张牌
+            num_k = (int)random.Next(1, 5);
+            imageNum = num_k + (NumberC - 1) * 4;
+            path = Directory.GetCurrentDirectory() + @"\images\" + imageNum.ToString() + ".bmp";
+            pictureBox3.Image = Image.FromFile(path);
+
+            //画第四张牌
+            num_k = (int)random.Next(1, 5);
+            imageNum = num_k + (NumberD - 1) * 4;
+            path = Directory.GetCurrentDirectory() + @"\images\" + imageNum.ToString() + ".bmp";
+            pictureBox4.Image = Image.FromFile(path);
+
+            int index = 1;//记录答案个数 
+            txtAnswer.Text = "";//清空答案栏 
+            for (int i = 1; i <= 24; i++)
+            {
+                ChangeOfPosition24(i);//24种情况的位置转换的方法
+                ArrayList first = new ArrayList();//数字集合对象
+                ArrayList firstStr = new ArrayList();//字符集合对象
+                first.Add(A.ToString());
+                firstStr.Add("A");
+                //此方法的核心思路：本来一开始是有ABCD四张牌，第一次对A、B进行加减乘除，再把得到的结果result返回去，第二次调用对result、C重复第一次操作
+                //第三次也是重复，不过这次返回去的结果就是计算出来的结果
+                cal(ref first, ref firstStr, B, 'B');
+                cal(ref first, ref firstStr, C, 'C');
+                cal(ref first, ref firstStr, D, 'D');
+
+                for (int j = 0; j < first.Count; j++)
+                {
+                    if (Convert.ToInt32(Convert.ToDouble(first[j].ToString())) == 24)
+                    {
+                        //replaceString参数（字符表达式，'字符'，数值）,此方法的核心思想是，一个一个字符替换为对应的数值
+                        firstStr[j] = replaceString(firstStr[j].ToString(), 'A', A);
+                        firstStr[j] = replaceString(firstStr[j].ToString(), 'B', B);
+                        firstStr[j] = replaceString(firstStr[j].ToString(), 'C', C);
+                        firstStr[j] = replaceString(firstStr[j].ToString(), 'D', D);
+                        //追加文本答案
+                        txtAnswer.AppendText("答案" + index + "： " + firstStr[j].ToString() + "=24；" + "\r\n");
+                        index++;
+                    }
+                }
+            }
+            if (txtAnswer.Text.Trim() == "")
+            {
+                txtAnswer.Text = "此题无解";
+            }
+
         }
     }
 }

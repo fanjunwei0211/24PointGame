@@ -27,5 +27,17 @@ namespace _24PointGame
             CalculateMode cal = new CalculateMode();
             cal.ShowDialog();
         }
+
+        private void button_trick_Click(object sender, EventArgs e)
+        {
+            GameMode game = new GameMode();
+            game.ShowDialog();
+        }
+
+        private void button_data_Click(object sender, EventArgs e)
+        {
+            Record record = new Record();
+            record.ShowDialog();
+        }
     }
 }
