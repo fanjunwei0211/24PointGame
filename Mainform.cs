@@ -39,5 +39,11 @@ namespace _24PointGame
             Record record = new Record();
             record.ShowDialog();
         }
+
+        private void Mainform_Load(object sender, EventArgs e)
+        {
+            FileStream fileStream = new FileStream(Program.filePath, FileMode.Create);
+            fileStream.Close();
+        }
     }
 }

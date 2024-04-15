@@ -2,6 +2,7 @@ namespace _24PointGame
 {
     internal static class Program
     {    
+        public static string filePath = "24PointGame.txt";
         /// <summary>
         ///  The main entry point for the application.
         /// </summary>

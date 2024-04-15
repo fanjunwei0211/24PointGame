@@ -5,9 +5,11 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace _24PointGame
 {
@@ -15,7 +17,7 @@ namespace _24PointGame
     {
         DateTime beginTime;//记录开始时间
         private int[] btnDowm = { 0, 0, 0, 0 };
-        private string lastInput;
+        private int timeMin, timeSec;
         private bool isCorrect = false;//判断答案是否正确
         private int A, B, C, D;//牌面大小对应的数字大小也用于交换数字的位置
         private int NumberA, NumberB, NumberC, NumberD;//牌面大小对应的数字大
@@ -27,12 +29,15 @@ namespace _24PointGame
 
         private void GameMode_Load(object sender, EventArgs e)
         {
+            
+
+
             lblResult.Text = "欢迎游戏";
             //时钟开启并计时
             timer1.Enabled = true;
             beginTime = DateTime.Now;
             //可用时间
-            int timeAll = 180 - (gameLevel - 1) * 10;
+            int timeAll = 180 + (gameLevel - 1) * 10;
             label_gameTimeUse.Text = "所用时间:" + timeAll / 60 + "分" + timeAll % 60 + "秒";
 
             lblInput.Text = "";
@@ -351,6 +356,7 @@ namespace _24PointGame
         private void btnDelete_Click(object sender, EventArgs e)
         {
             string input = lblInput.Text.Trim();
+            if(string.IsNullOrEmpty(input)) { return; }
             lblInput.Text = input.Substring(0, input.Length - 1);
         }
 
@@ -380,7 +386,7 @@ namespace _24PointGame
             lblInput.Text = "";
             txtAnswer.Text = "";
             timer1.Enabled = true;
-            beginTime = DateTime.Now;
+            //beginTime = DateTime.Now;
             //数字按键是否按下
             btnDowm[0] = 0;
             btnDowm[1] = 0;
@@ -388,7 +394,7 @@ namespace _24PointGame
             btnDowm[3] = 0;
             #endregion
             lblResult.Text = "欢迎游戏";
-            if(isCorrect == true)
+            if (isCorrect == true)
             {
                 gameCorrect++;
             }
@@ -396,22 +402,22 @@ namespace _24PointGame
             {
                 gameError++;
             }
-            
+
             isCorrect = false;
 
 
             //可用时间
-            int timeAll = 180 - (gameLevel - 1) * 10;
-            label_gameTimeUse.Text = "所用时间:" + timeAll/60+ "分" + timeAll%60 + "秒";
+            int timeAll = 180 + (gameLevel - 1) * 10;
+            label_gameTimeUse.Text = "可用时间:" + timeAll / 60 + "分" + timeAll % 60 + "秒";
 
             //初始化游戏等级
-            gameLevel = gameLevel+ 1;   
+            gameLevel = gameLevel + 1;
             label_gameLevel.Text = "当前关卡：" + gameLevel.ToString();
             //初始化游戏正确次数
-            
+
             label_gameCorrect.Text = "正确次数：" + gameCorrect.ToString();
             //初始化游戏错误次数
-            
+
             label_gameError.Text = "错误次数：" + gameError.ToString();
 
             if (gameError >= 10)
@@ -704,6 +710,168 @@ namespace _24PointGame
 
         #endregion
 
+        #region 计算器实现代码
+        private int Priority(char c)
+        {
+            if (c == '+' || c == '-')
+                return 0;
+            else if (c == '*' || c == '/' || c == '%')
+                return 1;
+            else if (c == '^' || c == '!' || c == '√')
+                return 2;
+            else
+                return 3;
+        }
+
+        private string Identify(string strExpression)
+        {
+            Stack stack = new Stack();
+            StringBuilder st = new StringBuilder();
+            char c = ' ';
+
+            StringBuilder sb = new StringBuilder(strExpression);
+            for (int i = 0; i < sb.Length; i++)
+            {
+                if (char.IsDigit(sb[i]) || sb[i] == '.')
+                {
+                    st.Append(sb[i]);
+                }
+                else if (sb[i] == '+' || sb[i] == '-' || sb[i] == '*' || sb[i] == '/' || sb[i] == '%' || sb[i] == '^' || sb[i] == '!')
+                {
+                    while (stack.Count > 0)
+                    {
+                        c = (char)stack.Pop();
+                        if (c == '(')
+                        {
+                            stack.Push(c);
+                            break;
+                        }
+                        else
+                        {
+                            if (Priority(c) < Priority(sb[i]))
+                            {
+                                stack.Push(c);
+                                break;
+                            }
+                            else
+                            {
+                                st.Append(' ');
+                                st.Append(c);
+                            }
+                        }
+                    }
+                    stack.Push(sb[i]);
+                    st.Append(' ');
+                }
+                else if (sb[i] == '(')
+                {
+                    stack.Push('(');
+                }
+                else if (sb[i] == ')')
+                {
+                    while (stack.Count > 0)
+                    {
+                        c = (char)stack.Pop();
+                        if (c != '(')
+                        {
+                            st.Append(' ');
+                            st.Append(c);
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    st.Append(' ');
+                    st.Append(sb[i]);
+                }
+            }
+            while (stack.Count > 0)
+            {
+                st.Append(' ');
+                st.Append(stack.Pop());
+            }
+            return st.ToString();
+        }
+
+        private string getResult(string strExpression)
+        {
+            Stack stack = new Stack();
+            string strResult = "";
+            double a1, a2, result;
+            int a3;
+            string[] str = strExpression.Split(new char[1] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+
+            for (int i = 0; i < str.Length; i++)
+            {
+                switch (str[i])
+                {
+                    case "*":
+                        a1 = Double.Parse(stack.Pop().ToString());
+                        a2 = Double.Parse(stack.Pop().ToString());
+                        result = a2 * a1;
+                        stack.Push(result.ToString());
+                        break;
+                    case "/":
+                        a1 = Double.Parse(stack.Pop().ToString());
+                        a2 = Double.Parse(stack.Pop().ToString());
+                        result = a2 / a1;
+                        stack.Push(result.ToString());
+                        break;
+                    case "%":
+                        a1 = Double.Parse(stack.Pop().ToString());
+                        a2 = Double.Parse(stack.Pop().ToString());
+                        result = a2 % a1;
+                        stack.Push(result.ToString());
+                        break;
+                    case "^":
+                        a1 = Double.Parse(stack.Pop().ToString());
+                        a2 = Double.Parse(stack.Pop().ToString());
+                        result = Math.Pow(a2, a1);
+                        stack.Push(result.ToString());
+                        break;
+                    case "+":
+                        a1 = Double.Parse(stack.Pop().ToString());
+                        a2 = Double.Parse(stack.Pop().ToString());
+                        result = a2 + a1;
+                        stack.Push(result);
+                        break;
+                    case "-":
+                        a1 = Double.Parse(stack.Pop().ToString());
+                        a2 = Double.Parse(stack.Pop().ToString());
+                        result = a2 - a1;
+                        stack.Push(result);
+                        break;
+                    case "!":
+                        a3 = int.Parse(stack.Pop().ToString());
+                        result = a3;
+                        if (result == 0) result = 1;
+                        else for (int j = a3; j > 1; j--)
+                            {
+                                result = result * (j - 1);
+                            }
+                        str[i] = result.ToString();
+                        stack.Push(Double.Parse(str[i]));
+                        break;
+                    case "√":
+                        a1 = Double.Parse(stack.Pop().ToString());
+                        result = Math.Sqrt(a1);
+                        str[i] = result.ToString();
+                        stack.Push(Double.Parse(str[i]));
+                        break;
+                    default:
+                        stack.Push(Double.Parse(str[i]));
+                        break;
+                }
+            }
+            strResult = stack.Pop().ToString();
+            return strResult;
+        }
+        #endregion
+
         private void btnEnter_Click(object sender, EventArgs e)
         {
 
@@ -714,50 +882,99 @@ namespace _24PointGame
             }
             if (CheckForNumber(lblInput.Text.Trim()))//检查输入表达式中输入的数字是否匹配
             {
-                #region 点击查看答案按钮，输入按钮禁用，时钟停止，清空答案栏
-                btnAdd.Enabled = false;
-                btnMinus.Enabled = false;
-                btnDivide.Enabled = false;
-                btnMulti.Enabled = false;
-                btnNumber1.Enabled = false;
-                btnNumber2.Enabled = false;
-                btnNumber3.Enabled = false;
-                btnNumber4.Enabled = false;
-                btnDelete.Enabled = false;
-                btnClear.Enabled = false;
-                btnLeft.Enabled = false;
-                btnRight.Enabled = false;
-                btnEnter.Enabled = false;
-                timer1.Enabled = false;//停止时钟
-                txtAnswer.Text = "";//清空答案栏
-                #endregion
 
-                //计算表达式的结果第一层
-                int result = Deal(lblInput.Text.Trim());//调用Deal()处理方法，对用户输入的表达式做一
-                                                        //系列判断计算，返回最终的结果
-                if (result == 24)
+                try
                 {
-                    lblResult.Text = "恭喜！您答对了，请进入下一关！";
-                    isCorrect = true;
-                    timer1.Enabled = false;//暂停时钟
+                    string result = Identify(lblInput.Text);
+                    result = getResult(result);
+                    if (result == "24")
+                    {
+                        lblResult.Text = "恭喜！您答对了，请进入下一关！";
+                        isCorrect = true;
+                        timer1.Enabled = false;//暂停时钟
+                    }
+                    else
+                    {
+                        isCorrect = false;
+                        lblResult.Text = "很遗憾！您答错了，请进入下一关！";
+                    }
+
+                    #region 点击查看答案按钮，输入按钮禁用，时钟停止，清空答案栏
+                    btnAdd.Enabled = false;
+                    btnMinus.Enabled = false;
+                    btnDivide.Enabled = false;
+                    btnMulti.Enabled = false;
+                    btnNumber1.Enabled = false;
+                    btnNumber2.Enabled = false;
+                    btnNumber3.Enabled = false;
+                    btnNumber4.Enabled = false;
+                    btnDelete.Enabled = false;
+                    btnClear.Enabled = false;
+                    btnLeft.Enabled = false;
+                    btnRight.Enabled = false;
+                    btnEnter.Enabled = false;
+                    txtAnswer.Text = "";//清空答案栏
+                    #endregion
+
                 }
-                else
+                catch //(Exception ex)
                 {
-                    isCorrect = false;
-                    lblResult.Text = "很遗憾！您答错了，请进入下一关！";
+                    MessageBox.Show("输入不合法,请重新输入!");
+                    lblInput.Text = string.Empty;
                 }
+
+
+                ////计算表达式的结果第一层
+                //int result = Deal(lblInput.Text.Trim());//调用Deal()处理方法，对用户输入的表达式做一
+                //                                        //系列判断计算，返回最终的结果
+                //if (result == 24)
+                //{
+                //    lblResult.Text = "恭喜！您答对了，请进入下一关！";
+                //    isCorrect = true;
+                //    timer1.Enabled = false;//暂停时钟
+                //}
+                //else
+                //{
+                //    isCorrect = false;
+                //    lblResult.Text = "很遗憾！您答错了，请进入下一关！";
+                //}
             }
         }
 
         private void timer1_Tick(object sender, EventArgs e)
         {
             TimeSpan ts = DateTime.Now - beginTime;
+            timeMin = ts.Minutes;
+            timeSec = ts.Seconds;
             label_gameTime.Text = "所用时间:" + ts.Minutes + "分" + ts.Seconds.ToString() + "秒";
-            if (ts.Seconds  == 180- (gameLevel - 1) * 10)
+            if (ts.Seconds == 180 + (gameLevel - 1) * 10)
             {
                 MessageBox.Show("时间到！！！", "时间警告", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 label_gameTime.ForeColor = Color.Red;
             }
+        }
+
+        private void GameMode_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            FileStream fileStream = new FileStream(Program.filePath, FileMode.Append);
+            StreamWriter sw = new StreamWriter(fileStream);
+            try
+            {
+                sw.WriteLine(gameLevel + "关" + "    正确数：" + gameCorrect + "    错误数：" + gameError + "    用时：" + 
+                    timeMin + ":" + timeSec);
+                sw.Flush();
+                sw.Close();
+                fileStream.Close();
+            }
+            catch (IOException error)
+            {
+                sw.Flush();
+                sw.Close();
+                fileStream.Close();
+                MessageBox.Show(error.ToString());
+            }
+
+
         }
     }
 }

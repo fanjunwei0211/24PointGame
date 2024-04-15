@@ -410,6 +410,7 @@
             Name = "GameMode";
             StartPosition = FormStartPosition.CenterParent;
             Text = "闯关模式";
+            FormClosed += GameMode_FormClosed;
             Load += GameMode_Load;
             ((System.ComponentModel.ISupportInitialize)pictureBox4).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox3).EndInit();

@@ -113,6 +113,7 @@
             Name = "Mainform";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "24Point";
+            Load += Mainform_Load;
             ResumeLayout(false);
             PerformLayout();
         }

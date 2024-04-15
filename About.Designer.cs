@@ -38,7 +38,7 @@
             label1.Font = new Font("Microsoft YaHei UI", 10F, FontStyle.Regular, GraphicsUnit.Point);
             label1.Location = new Point(26, 58);
             label1.Name = "label1";
-            label1.Size = new Size(467, 321);
+            label1.Size = new Size(467, 275);
             label1.TabIndex = 0;
             label1.Text = resources.GetString("label1.Text");
             // 
