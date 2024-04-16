@@ -40,16 +40,19 @@ namespace _24PointGame
             sr.Close();
             string[] arrayStr = Regex.Split(str, "\r\n");
             cnt = arrayStr.Length-1;
-            if (cnt == 0)
+            //if (cnt == 0)
+            //{
+            //    txtRecord.Text = "无";
+            //    return;
+            //}
+            //for (int i = 1; i <= ((cnt >= 3) ? 3 : cnt); i++) 
+            //{
+            //    txtRecord.Text = txtRecord.Text + i + ".    " + arrayStr[arrayStr.Length - i - 1] + "\r\n";
+            //}
+            for (int i = 1; i <= cnt; i++)
             {
-                txtRecord.Text = "无";
-                return;
+                txtRecord.Text = txtRecord.Text  + arrayStr[arrayStr.Length - i - 1] + "\r\n";
             }
-            for (int i = 1; i <= ((cnt >= 3) ? 3 : cnt); i++) 
-            {
-                txtRecord.Text = txtRecord.Text + i + ".    " + arrayStr[arrayStr.Length - i - 1] + "\r\n";
-            }
-            
         }
     }
 }

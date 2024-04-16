@@ -22,15 +22,14 @@ namespace _24PointGame
         private int A, B, C, D;//牌面大小对应的数字大小也用于交换数字的位置
         private int NumberA, NumberB, NumberC, NumberD;//牌面大小对应的数字大
         private int gameLevel = 1, gameCorrect = 0, gameError = 0;//游戏等级，正确次数，错误次数
+        ArrayList AnswerList = new ArrayList();
         public GameMode()
         {
             InitializeComponent();
         }
 
         private void GameMode_Load(object sender, EventArgs e)
-        {
-            
-
+        {     
 
             lblResult.Text = "欢迎游戏";
             //时钟开启并计时
@@ -99,7 +98,7 @@ namespace _24PointGame
 
         #region 点击查看答案按钮要做的一系列处理计算
         //1、（ABCD）24种情况的位置转换
-        public void ChangeOfPosition24(int i)
+        public bool ChangeOfPosition24(int i, ref ArrayList num_order)
         {
             //24种位置转换 
             //此方法的核心思想:要让A/B/C/D四个数两两算一次，如：+加号运算符
@@ -107,6 +106,7 @@ namespace _24PointGame
             //加减乘除四种运算符加起来总共就有24种情况
             //补充：上面的意思是A在第一个位置有6种情况，同理
             //B在第一个位置也有6种情况，C在第一个位置也有6种情况,D在第一个位置也有6种情况
+
             switch (i)
             {
                 case 1:
@@ -182,6 +182,12 @@ namespace _24PointGame
                     D = NumberA; C = NumberB; B = NumberC; A = NumberD;
                     break;
             }
+            if (num_order.Contains(A.ToString() + ' ' + B.ToString() + ' ' + C.ToString() + ' ' + D.ToString()) == true)
+            {
+                return false;
+            }
+            num_order.Add(A.ToString() + ' ' + B.ToString() + ' ' + C.ToString() + ' ' + D.ToString());
+            return true;
         }
 
         //2、24点计算方法（加减乘除）
@@ -192,10 +198,10 @@ namespace _24PointGame
         {
             ArrayList newNum = new ArrayList();//数值集合对象
             ArrayList newNumStr = new ArrayList();//字符集合对象
-            int temp;
+            double temp;
             for (int i = 0; i < num.Count; i++)
             {
-                int num1 = Convert.ToInt32(num[i].ToString());
+                double num1 = Convert.ToDouble(num[i].ToString());
 
                 #region 加法的情况
                 temp = num1 + num2;
@@ -227,7 +233,7 @@ namespace _24PointGame
                 #endregion
 
                 #region 乘法的情况
-                temp = num1 * num2;
+                temp = 1.0 * num1 * num2;
                 newNum.Add(temp.ToString());
                 if (numStr[i].ToString().IndexOf("+") == -1 && numStr[i].ToString().IndexOf("-") == -1)//利用IndexOf()检查是否有+-运算符-1：指的是没有
                 {
@@ -240,36 +246,17 @@ namespace _24PointGame
                 #endregion
 
                 #region 除法的情况
-                if (num1 > num2)
+                if (num2 != 0)//除数不为0，而且两数相除余数要为0，也就是要能整除
                 {
-                    if (num2 != 0 && num1 % num2 == 0)//除数不为0，而且两数相除余数要为0，也就是要能整除
+                    temp = 1.0 * num1 / num2;
+                    newNum.Add(temp.ToString());
+                    if (numStr[i].ToString().IndexOf("+") == -1 && numStr[i].ToString().IndexOf("-") == -1)
                     {
-                        temp = num1 / num2;
-                        newNum.Add(temp.ToString());
-                        if (numStr[i].ToString().IndexOf("+") == -1 && numStr[i].ToString().IndexOf("-") == -1)
-                        {
-                            newNumStr.Add(numStr[i].ToString() + "/" + num2Str);//A/B
-                        }
-                        else
-                        {
-                            newNumStr.Add("(" + numStr[i].ToString() + ")" + "/" + num2Str);//(A+B)/C
-                        }
+                        newNumStr.Add(numStr[i].ToString() + "/" + num2Str);//A/B
                     }
-                }
-                else
-                {
-                    if (num1 != 0 && num2 % num1 == 0)
+                    else
                     {
-                        temp = num2 / num1;
-                        newNum.Add(temp.ToString());
-                        if (numStr[i].ToString().IndexOf("+") == -1 && numStr[i].ToString().IndexOf("-") == -1)
-                        {
-                            newNumStr.Add(num2Str + "/" + numStr[i].ToString());
-                        }
-                        else
-                        {
-                            newNumStr.Add(num2Str + "/" + "(" + numStr[i].ToString() + ")");
-                        }
+                        newNumStr.Add("(" + numStr[i].ToString() + ")" + "/" + num2Str);//(A+B)/C
                     }
                 }
                 #endregion
@@ -488,42 +475,29 @@ namespace _24PointGame
             timer1.Enabled = false;//停止时钟
             txtAnswer.Text = "";//清空答案栏
             #endregion
-            int index = 1;//记录答案个数
-            #region 首先：(ABCD位置)24种情况的遍历，然后：计算24点的方法，接着：把字符表达式转为数值表达式
+            int index = 1;//记录答案个数 
             txtAnswer.Text = "";//清空答案栏 
-            for (int i = 1; i <= 24; i++)
-            {
-                ChangeOfPosition24(i);//24种情况的位置转换的方法
-                ArrayList first = new ArrayList();//数字集合对象
-                ArrayList firstStr = new ArrayList();//字符集合对象
-                first.Add(A.ToString());
-                firstStr.Add("A");
-                //此方法的核心思路：本来一开始是有ABCD四张牌，第一次对A、B进行加减乘除，再把得到的结果result返回去，第二次调用对result、C重复第一次操作
-                //第三次也是重复，不过这次返回去的结果就是计算出来的结果
-                cal(ref first, ref firstStr, B, 'B');
-                cal(ref first, ref firstStr, C, 'C');
-                cal(ref first, ref firstStr, D, 'D');
 
-                for (int j = 0; j < first.Count; j++)
-                {
-                    if (Convert.ToInt32(Convert.ToDouble(first[j].ToString())) == 24)
-                    {
-                        //replaceString参数（字符表达式，'字符'，数值）,此方法的核心思想是，一个一个字符替换为对应的数值
-                        firstStr[j] = replaceString(firstStr[j].ToString(), 'A', A);
-                        firstStr[j] = replaceString(firstStr[j].ToString(), 'B', B);
-                        firstStr[j] = replaceString(firstStr[j].ToString(), 'C', C);
-                        firstStr[j] = replaceString(firstStr[j].ToString(), 'D', D);
-                        //追加文本答案
-                        txtAnswer.AppendText("答案" + index + "： " + firstStr[j].ToString() + "=24；" + "\r\n");
-                        index++;
-                    }
-                }
-            }
-            if (txtAnswer.Text.Trim() == "")
+            var customerInput = new int[4];
+            customerInput[0] = NumberA;
+            customerInput[1] = NumberB;
+            customerInput[2] = NumberC;
+            customerInput[3] = NumberD;
+
+            var task = new Solver();
+            var answer = task.Solution(customerInput);
+            if (answer.Count == 0)
             {
                 txtAnswer.Text = "此题无解";
             }
-            #endregion
+            else
+            {
+                foreach (var a in answer)
+                {
+                    txtAnswer.AppendText("答案" + index + "： " + a + "\r\n");
+                    index++;
+                }
+            }
         }
 
         #region 验证确定按钮包含的一系列方法：检查计算用户输入表达式结果是否正确
@@ -922,22 +896,7 @@ namespace _24PointGame
                     MessageBox.Show("输入不合法,请重新输入!");
                     lblInput.Text = string.Empty;
                 }
-
-
-                ////计算表达式的结果第一层
-                //int result = Deal(lblInput.Text.Trim());//调用Deal()处理方法，对用户输入的表达式做一
-                //                                        //系列判断计算，返回最终的结果
-                //if (result == 24)
-                //{
-                //    lblResult.Text = "恭喜！您答对了，请进入下一关！";
-                //    isCorrect = true;
-                //    timer1.Enabled = false;//暂停时钟
-                //}
-                //else
-                //{
-                //    isCorrect = false;
-                //    lblResult.Text = "很遗憾！您答错了，请进入下一关！";
-                //}
+                AnswerList.Add(lblInput.Text.ToString());
             }
         }
 
@@ -962,6 +921,10 @@ namespace _24PointGame
             {
                 sw.WriteLine(gameLevel + "关" + "    正确数：" + gameCorrect + "    错误数：" + gameError + "    用时：" + 
                     timeMin + ":" + timeSec);
+                foreach(string ans in AnswerList)
+                {
+                    sw.WriteLine(ans);
+                }
                 sw.Flush();
                 sw.Close();
                 fileStream.Close();
